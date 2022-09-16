@@ -34,7 +34,10 @@
     [self selectTable];
 
     //删除表数据集
-    [self dropData];
+//    [self dropData];
+    
+    //更新表
+    [self updateTableWithName:@"xxx" age:10];
 }
 
 - (void)openDB
@@ -120,4 +123,22 @@
         NSLog(@"删除表失败");
     }
 }
+
+
+- (void)updateTableWithName:(NSString *)name age:(int)age
+{
+    NSString *sql = [NSString stringWithFormat:@"update tbl1 set name = '%@' where age = 10",name];
+    char *error = NULL;
+
+    if (sqlite3_exec(_db, sql.UTF8String, NULL, NULL, &error) == SQLITE_OK)
+    {
+        NSLog(@"更新表成功");
+    }
+    else
+    {
+        NSLog(@"更新表失败");
+    }
+}
+
+
 @end
