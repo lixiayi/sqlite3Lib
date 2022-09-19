@@ -20,6 +20,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self transationTest];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
@@ -85,6 +86,83 @@
     
     [dbQueue close];
     
+}
+
+
+- (void)transationTest
+{
+   
+    /*
+     adminNew55    999
+     admin66    666
+     */
+    NSString *path = [ NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:@"fmdb.sqlite3"];
+    dbPath = path;
+    
+    //创建db
+    _db = [FMDatabase databaseWithPath:path];
+    [_db open];
+    
+    
+    //创建
+    NSString *sql = @"create table t1 (name VARCHAR (12), age int)";
+    if ([_db executeUpdate:sql])
+    {
+        NSLog(@"create table success.");
+    }
+    
+    FMDatabaseQueue *dbQueue = [FMDatabaseQueue databaseQueueWithPath:dbPath];
+    
+    [dbQueue inTransaction:^(FMDatabase * _Nonnull db, BOOL * _Nonnull rollback)
+    {
+    
+        NSString *sql5 = [[NSString alloc] initWithFormat:@"update t1 set name = '%@'",@"adminNew"];
+        BOOL success = [db executeUpdate:sql5];
+        
+        if (success == NO)
+        {
+            *rollback = YES;
+            NSLog(@"rollback5");
+            return;
+        }
+        
+        
+        NSString *sql6 = [[NSString alloc] initWithFormat:@"insert into t1 values ('%@',%d)",@"admin6",999];
+        BOOL  success1 =  [db executeUpdate:sql6];
+        
+        if (success1 == NO)
+        {
+            *rollback = YES;
+            NSLog(@"rollback6");
+            return;
+        }
+        
+        //下面这句模拟sql语句错误，事务出错，执行rollback
+//        NSString *sql55 = [[NSString alloc] initWithFormat:@"update t1 set name = '%@",@"adminNew55"];
+        NSString *sql55 = [[NSString alloc] initWithFormat:@"update t1 set name = '%@'",@"adminNew55"];
+        BOOL success55 = [db executeUpdate:sql55];
+        
+        if (success55 == NO)
+        {
+            *rollback = YES;
+            NSLog(@"rollback55");
+            return;
+        }
+        
+        
+        NSString *sql66 = [[NSString alloc] initWithFormat:@"insert into t1 values ('%@',%d)",@"admin66",666];
+        BOOL  success66 =  [db executeUpdate:sql66];
+        
+        if (success66 == NO)
+        {
+            *rollback = YES;
+            NSLog(@"rollback66");
+            return;
+        }
+        
+    }];
+    
+    [dbQueue close];
 }
 
 /*
