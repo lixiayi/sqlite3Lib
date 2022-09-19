@@ -6,6 +6,7 @@
 //
 
 #import "ViewController.h"
+#import "FmdbViewController.h"
 #import <sqlite3.h>
 
 @interface ViewController ()
@@ -38,6 +39,37 @@
     
     //更新表
     [self updateTableWithName:@"xxx" age:10];
+    
+    [self enterfmdb];
+}
+
+- (void)enterfmdb
+{
+    [self fmdbBtn];
+}
+
+- (UIButton *)fmdbBtn
+{
+    if(_fmdbBtn == nil)
+    {
+        _fmdbBtn = [[UIButton alloc] initWithFrame:CGRectMake(100, 300, 120, 44)];
+        [_fmdbBtn setTitle:@"fmdb" forState:UIControlStateNormal];
+        _fmdbBtn.backgroundColor = [UIColor redColor];
+        _fmdbBtn.titleLabel.font = [UIFont systemFontOfSize:14];
+        [_fmdbBtn addTarget:self
+                       action:@selector(fmdbAction)
+             forControlEvents:UIControlEventTouchUpInside];
+        
+        [self.view addSubview:_fmdbBtn];
+    }
+    return _fmdbBtn;
+}
+
+- (void)fmdbAction
+{
+    FmdbViewController *vc = [[FmdbViewController alloc] init];
+    [self presentViewController:vc animated:YES completion:nil];
+    
 }
 
 - (void)openDB
@@ -101,6 +133,7 @@
     {
         while (sqlite3_step(stmt) == SQLITE_ROW)
         {
+            //绑定参数
             unsigned char *name = (unsigned char *) sqlite3_column_text(stmt, 0);
             int age= sqlite3_column_int(stmt, 1);
             NSLog(@"name--->%s,age--->%d",name,age);
